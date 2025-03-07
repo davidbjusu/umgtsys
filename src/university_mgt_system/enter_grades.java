@@ -4,7 +4,12 @@
  */
 package university_mgt_system;
 
+import java.sql.Connection;
+import java.awt.Font;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 
 
@@ -20,7 +25,7 @@ public class enter_grades extends javax.swing.JFrame {
      */
     public enter_grades() {
         initComponents();
-        
+                
         try {
             Conn c = new Conn();
             ResultSet rs = c.s.executeQuery("select * from grading_system");
@@ -53,10 +58,14 @@ public class enter_grades extends javax.swing.JFrame {
         } catch (Exception e) {
             e.printStackTrace();
         }
-}
     
-
-
+    
+}
+    Connection conn;
+    PreparedStatement pst;
+    
+    
+        
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -330,13 +339,18 @@ public class enter_grades extends javax.swing.JFrame {
         grade =grade_choice.getSelectedItem().toString();
         
         try {
-                 String query = "insert into grades values('"+student_id+"', '"+course+"', '"+grade+"')";
-           
+           //String query = "insert into grades values('"+student_id+"', '"+course+"', '"+grade+"')";
            Conn con = new Conn();
-           con.s.executeUpdate(query);
-           
-           JOptionPane.showMessageDialog(null, "Grade has been recorded");
-           
+           pst = con.c.prepareStatement("Insert Into grades(student_id,course_id,grade)values(?,?,?) ");
+            
+            pst.setString(1,student_id);
+            pst.setString(2,course);
+            pst.setString(3,grade);
+            pst.executeUpdate();
+           JLabel messageLabel = new JLabel("Grade has been recorded");
+           messageLabel.setFont(new Font("sanserif", Font.PLAIN, 15));
+           JOptionPane.showMessageDialog(null,messageLabel,
+                   "Success",JOptionPane.INFORMATION_MESSAGE);        
            
             //setVisible(false);
             } catch (Exception e) {

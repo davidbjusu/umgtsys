@@ -203,7 +203,7 @@ public class update_student extends JFrame implements ActionListener{
             String query = "select * from student_registration_tbl where mat_no='"+cmatno.getSelectedItem()+"'";
             ResultSet rs = c.s.executeQuery(query);
             while(rs.next()) {
-                lbl_academic_year.setText(rs.getString("academic-year"));
+                lbl_academic_year.setText(rs.getString("academic_year"));
                 txt_surname.setText(rs.getString("surname"));
                 txt_othername.setText(rs.getString("othername"));
                 lbl_matno.setText(rs.getString("mat_no"));
@@ -230,7 +230,7 @@ public class update_student extends JFrame implements ActionListener{
                     String query = "select * from student_registration_tbl where mat_no='"+cmatno.getSelectedItem()+"'";
                     ResultSet rs = c.s.executeQuery(query);
                     while(rs.next()) {
-                        lbl_academic_year.setText(rs.getString("academic-year"));
+                        lbl_academic_year.setText(rs.getString("academic_year"));
                         txt_surname.setText(rs.getString("surname"));
                         txt_othername.setText(rs.getString("othername"));
                         lbl_matno.setText(rs.getString("mat_no"));
