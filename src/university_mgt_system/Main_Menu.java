@@ -206,18 +206,22 @@ public class Main_Menu extends JFrame implements ActionListener {
         } else if (msg.equals("Enter Marks")) {
             enter_grades ob = new enter_grades();
             ob.setVisible(true);
+            dispose();
         } else if (msg.equals("View Examination Results")) {
             exam_info ob = new exam_info();
             ob.setVisible(true);
+            dispose();
         }    else if (msg.equals("Grade Point Calculator")){
             grade_point_checker ob = new grade_point_checker();
             ob.setVisible(true);
+            dispose();
         }  else if (msg.equals("About")) {
            about_app ob = new about_app();
            ob.setVisible(true);
         } else if (msg.equals("Student Fee Form")) {
            student_fee ob = new student_fee();
            ob.setVisible(true);
+           dispose();
         }
     }
 

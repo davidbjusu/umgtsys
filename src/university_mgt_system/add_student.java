@@ -5,19 +5,39 @@ import java.awt.*;
 import java.util.*;
 import com.toedter.calendar.JDateChooser;
 import java.awt.event.*;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
 public class add_student extends JFrame implements ActionListener{
     
+    
+    
+    PreparedStatement pst;
+    
+    
     JTextField txt_surname,txt_othername,txt_matno,txt_telephone
               ,txt_address,txt_parent,txt_major,txt_fee;
     JDateChooser dcdob;
-    JComboBox cmb_year,cmb_gender,cmb_nationality,cmb_school,cmb_program,cmb_prog_year,cmb_fsupport;
+    JComboBox cmb_year,cmb_gender,cmb_nationality,cmb_program,cmb_prog_year,cmb_fsupport;
     JButton back,submit, cancel;
+    private JComboBox<String> cmb_school;
+    private JComboBox<String> cmb_dept;
+    private JLabel lblSchoolID;
+    private JLabel lbldeptID;
     
     
     
     add_student() {
+         lblSchoolID = new JLabel();
+        lblSchoolID.setVisible(false);
+        this.add(lblSchoolID);
+        //departments
+        lbldeptID = new JLabel();
+        lbldeptID.setVisible(false);
+        this.add(lbldeptID);
+         cmb_school = new JComboBox<>();
+         cmb_dept = new JComboBox<>();
+        loadSchools();
         setTitle("Njala University Management System");
         
         NoIconFrame.setFrameIcon(this);
@@ -139,65 +159,82 @@ public class add_student extends JFrame implements ActionListener{
         lbl_10.setForeground(Color.red);
         add(lbl_10);
         
-        String school[] = {"Select","Technology", "Agriculture", "Medicine","Education","Social Sciences"};
-        cmb_school = new JComboBox(school);
+        //String school[] = {"Select","Technology", "Agriculture", "Medicine","Education","Social Sciences"};
+        cmb_school = new JComboBox<>();
+        loadSchools();
+        cmb_school.addActionListener(this);
         cmb_school.setBounds(150, 310, 150, 25);
         cmb_school.setFont(new Font("sanserif", Font.PLAIN, 12));
         cmb_school.setBackground(Color.WHITE);
         add(cmb_school);
         
+        JLabel lbl_20 = new JLabel("DEPARTMENT");
+        lbl_20.setBounds(350, 300, 200, 25);
+        lbl_20.setFont(new Font("sanserif", Font.BOLD, 12));
+        lbl_20.setForeground(Color.red);
+        add(lbl_20);
+        
+        //String dept[] = {"Select","Technology", "Agriculture", "Medicine","Education","Social Sciences"};
+        cmb_dept = new JComboBox<>();
+        this.add(cmb_dept);
+        cmb_dept.addActionListener(this);
+        cmb_dept.setBounds(450, 310, 150, 25);
+        cmb_dept.setFont(new Font("sanserif", Font.PLAIN, 12));
+        cmb_dept.setBackground(Color.WHITE);
+        add(cmb_dept);
+        
         JLabel lbl_11 = new JLabel("PROGRAM");
-        lbl_11.setBounds(350, 300, 200, 25);
+        lbl_11.setBounds(640, 300, 200, 25);
         lbl_11.setFont(new Font("sanserif", Font.BOLD, 12));
         add(lbl_11);
         
         String program[] = {"Select","BSC.", "B.A", "Higher Diploma","Certificate","MSc"};
         cmb_program = new JComboBox(program);
-        cmb_program.setBounds(450, 310, 150, 25);
+        cmb_program.setBounds(740, 310, 150, 25);
         cmb_program.setFont(new Font("sanserif", Font.PLAIN, 12));
         cmb_program.setBackground(Color.WHITE);
         add(cmb_program);
         
         JLabel lbl_12 = new JLabel("MAJOR");
-        lbl_12.setBounds(640, 300, 200, 25);
+        lbl_12.setBounds(20, 400, 200, 25);
         lbl_12.setFont(new Font("sanserif", Font.BOLD, 12));
         add(lbl_12);
         
         txt_major = new JTextField();
-        txt_major.setBounds(740, 310, 150, 25);
+        txt_major.setBounds(150, 400, 150, 25);
         add(txt_major);
         
         JLabel lbl_13 = new JLabel("PROGRAM YEAR");
-        lbl_13.setBounds(20, 350, 200, 25);
+        lbl_13.setBounds(350, 350, 200, 25);
         lbl_13.setFont(new Font("sanserif", Font.BOLD, 12));
         add(lbl_13);
         
-        String prog_year[] = {"Select","One", "Two", "Three","Four"};
+        String prog_year[] = {"Select","1", "2", "3","4"};
         cmb_prog_year = new JComboBox(prog_year);
-        cmb_prog_year.setBounds(150, 360, 150, 25);
+        cmb_prog_year.setBounds(450, 360, 150, 25);
         cmb_prog_year.setFont(new Font("sanserif", Font.PLAIN, 12));
         cmb_prog_year.setBackground(Color.WHITE);
         add(cmb_prog_year);
         
         JLabel lbl_14 = new JLabel("FUNDING");
-        lbl_14.setBounds(350, 350, 200, 25);
+        lbl_14.setBounds(640, 350, 200, 25);
         lbl_14.setFont(new Font("sanserif", Font.BOLD, 12));
         add(lbl_14);
         
         String funding[] = {"Select","Private", "Waiver", "SLG","Others"};
         cmb_fsupport = new JComboBox(funding);
-        cmb_fsupport.setBounds(450, 360, 150, 25);
+        cmb_fsupport.setBounds(740, 360, 150, 25);
         cmb_fsupport.setFont(new Font("sanserif", Font.PLAIN, 12));
         cmb_fsupport.setBackground(Color.WHITE);
         add(cmb_fsupport);
                 
         JLabel lbl_15 = new JLabel("AMOUNT PAID");
-        lbl_15.setBounds(640, 350, 200, 25);
+        lbl_15.setBounds(20, 350, 200, 25);
         lbl_15.setFont(new Font("sanserif", Font.BOLD, 12));
         add(lbl_15);
         
         txt_fee = new JTextField();
-        txt_fee.setBounds(740, 360, 150, 25);
+        txt_fee.setBounds(150, 360, 150, 25);
         add(txt_fee);
         
         back = new JButton("BACK(/MAIN MENU)");
@@ -230,10 +267,117 @@ public class add_student extends JFrame implements ActionListener{
         
     }
     
+    
+   private void loadSchools() {
+       if (cmb_school == null){
+       System.out.println("Error CmbSchool is null");
+       return;
+       }
+    try {
+        Conn con = new Conn();
+        String query = "SELECT school_id,school_name FROM schools_tbl";
+        pst = con.c.prepareStatement(query);
+        ResultSet rs = pst.executeQuery();
+       
+        cmb_school.removeAllItems();  // Clear previous data
+        cmb_school.addItem("-- Select School --");
+       
+        while (rs.next()) {
+            String schoolID = rs.getString("school_id");
+            String schoolname = rs.getString("school_name");
+            System.out.println("Adding "+schoolname);
+            cmb_school.addItem(rs.getString("school_name"));
+        }
+            System.out.println("Schools loaded Successfully");
+            
+    } catch (Exception ex) {
+        ex.printStackTrace();
+    }
+}
+
+    private void loadDepartments() {
+    String selectedSchool = (String) cmb_school.getSelectedItem();
+    
+    if (selectedSchool == null || selectedSchool.equals("-- Select School --")){
+       return;
+       }
+
+       try {
+           Conn con = new Conn();
+        
+        String query = "SELECT s.school_id,d.dept_id,d.dept_name FROM departments_tbl d JOIN schools_tbl s ON d.school_id = s.school_id WHERE s.school_name = ?";
+        pst = con.c.prepareStatement(query);
+        pst.setString(1, selectedSchool);
+        ResultSet rs = pst.executeQuery();
+
+        cmb_dept.removeAllItems(); 
+        cmb_dept.addItem("-- Select Department --");
+
+        while (rs.next()) {
+            String schoolID = rs.getString("school_id");//testdebugging
+            String deptname = rs.getString("dept_name");
+            System.out.println("Loaded Dept "+deptname);
+            System.out.println("School ID is "+schoolID);//testdebugging
+            cmb_dept.addItem(rs.getString("dept_name"));
+        }
+            cmb_dept.revalidate();
+            cmb_dept.repaint();
+    } catch (Exception ex) {
+        ex.printStackTrace();
+    }
+}
+    
+    @Override        
     public void actionPerformed(ActionEvent ae) {
-        if (ae.getSource() == submit) {           
+        
+        if(ae.getSource() == cmb_school){
+            //loadDepartments();
+            String selectedschool = (String) cmb_school.getSelectedItem();
+                        if(selectedschool != null){
+                            try {
+                                Conn con = new Conn();
+        
+                                String query = "SELECT school_id FROM schools_tbl WHERE school_name = ?";
+                            pst = con.c.prepareStatement(query);
+                            pst.setString(1, selectedschool);
+                            ResultSet rs = pst.executeQuery();
+                                if(rs.next()){
+                                    String schoolID = rs.getString("school_id");//testdebugging
+                                    System.out.println("School ID is "+schoolID);//testdebugging
+                                lblSchoolID.setText(rs.getString("school_id"));
+                                loadDepartments();
+                                }
+                             } catch (Exception ex) {
+                            ex.printStackTrace();
+    }
+                        }
+        }
+        else if 
+               (ae.getSource() == cmb_dept){
+            //loadDepartments();
+            String selectedDept = (String) cmb_dept.getSelectedItem();
+                        if(selectedDept != null){
+                            try {
+                                Conn con = new Conn();
+        
+                                String query = "SELECT dept_id FROM departments_tbl WHERE dept_name = ?";
+                            pst = con.c.prepareStatement(query);
+                            pst.setString(1, selectedDept);
+                            ResultSet rs = pst.executeQuery();
+                                if(rs.next()){
+                                  String deptID = rs.getString("dept_id");//testdebugging 
+                                  System.out.println("Dept ID is "+deptID);//testdebugging
+                                lbldeptID.setText(rs.getString("dept_id"));
+                                //loadDepartments(rs.getString("school_id"));
+                                }
+                             } catch (Exception ex) {
+                            ex.printStackTrace();
+    }
+                        }
+        }
+        else if (ae.getSource() == submit) {           
             String academicYear,sname,oname,matno,tel,gender,nationality,
-            address,parent,school,program,major,year,fsupport,fee;
+            address,parent,school,dept,program,fee,year,fsupport,major;
             
         academicYear = cmb_year.getSelectedItem().toString();
         sname = txt_surname.getText();
@@ -244,17 +388,16 @@ public class add_student extends JFrame implements ActionListener{
         nationality = cmb_nationality.getSelectedItem().toString();
         address = txt_address.getText();
         parent = txt_parent.getText();
-        school = cmb_school.getSelectedItem().toString();
+        school = lblSchoolID.getText();
+        dept = lbldeptID.getText();
         program = cmb_program.getSelectedItem().toString();
-        major = txt_major.getText();
+        fee = txt_major.getText();
         year = cmb_prog_year.getSelectedItem().toString();
         fsupport = cmb_fsupport.getSelectedItem().toString();
-        fee = txt_fee.getText();
+        major = txt_fee.getText();
             
             try {
-                 String query = "insert into student_registration_tbl values('"+academicYear+"', '"+matno+"', '"+sname+"', '"+oname+"', '"
-           +tel+"', '"+gender+"', '"+nationality+"', '"+address+"', '"+parent+"', '"+school+"', '"+program+"', "
-           + "'"+major+"', '"+year+"', '"+fsupport+"', '"+fee+"')";
+                 String query = "insert into student_registration_tbl values('"+academicYear+"', '"+matno+"', '"+sname+"', '"+oname+"', '"+tel+"', '"+gender+"', '"+nationality+"', '"+address+"', '"+parent+"', '"+school+"', '"+dept+"', '"+program+"', '"+fee+"', '"+year+"', '"+fsupport+"', '"+major+"')";
            
            Conn con = new Conn();
            con.s.executeUpdate(query);
@@ -285,7 +428,14 @@ public class add_student extends JFrame implements ActionListener{
         }
     }
     
+    
+    
     public static void main(String[] args) {
         new add_student();
+        
     }
-}
+        }
+ 
+                
+                
+                
