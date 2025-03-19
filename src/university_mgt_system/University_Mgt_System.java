@@ -8,7 +8,7 @@ package university_mgt_system;
  *
  * @author Baddest
  */
-public class Advanced_University_Mgt_System {
+public class University_Mgt_System {
 
     /**
      * @param args the command line arguments

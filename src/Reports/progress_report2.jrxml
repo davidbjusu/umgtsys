@@ -2,7 +2,7 @@
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="null" language="groovy" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="0a7bc592-fa05-4e7c-aa52-d25759550ce7">
 	<property name="ireport.zoom" value="1.0"/>
 	<property name="ireport.x" value="0"/>
-	<property name="ireport.y" value="49"/>
+	<property name="ireport.y" value="0"/>
 	<style name="table">
 		<box>
 			<pen lineWidth="1.0" lineColor="#000000"/>
@@ -23,8 +23,27 @@
 			<pen lineWidth="0.5" lineColor="#000000"/>
 		</box>
 	</style>
+	<style name="table 1">
+		<box>
+			<pen lineWidth="1.0" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 1_TH" mode="Opaque" backcolor="#F0F8FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 1_CH" mode="Opaque" backcolor="#BFE1FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 1_TD" mode="Opaque" backcolor="#FFFFFF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
 	<subDataset name="progress_1" uuid="43bf47da-f572-41a5-a470-e4f1c2b20adf">
-		<parameter name="studentMatNo" class="java.lang.String"/>
 		<queryString language="SQL">
 			<![CDATA[SELECT 
     concat(s.othername,' ',s.surname)AS student_name, 
@@ -41,7 +60,7 @@ JOIN student_registration_tbl s ON g.student_id = s.mat_no
 JOIN courses c ON g.course_id = c.course_id
 JOIN grading_system gs ON g.grade = gs.grade
 
-Where s.mat_no = 75317
+Where s.mat_no='75317'
 GROUP BY student_name, s.academic_year, s.mat_no, c.course_code, c.course_name, c.credit_hours, g.grade, gs.grade_point;]]>
 		</queryString>
 		<field name="course_code" class="java.lang.String">
@@ -58,9 +77,9 @@ GROUP BY student_name, s.academic_year, s.mat_no, c.course_code, c.course_name, 
 		</field>
 	</subDataset>
 	<subDataset name="student_info" uuid="43976ed6-a3d7-475a-b7cc-d8ce63c19b70">
-		<parameter name="studentMatNo" class="java.lang.Integer"/>
+		<parameter name="studentID" class="java.lang.String"/>
 		<queryString language="SQL">
-			<![CDATA[Select * From student_registration_tbl Where mat_no = $P{studentMatNo}]]>
+			<![CDATA[Select * From student_registration_tbl Where mat_no=?]]>
 		</queryString>
 		<field name="academic_year" class="java.lang.String">
 			<fieldDescription><![CDATA[]]></fieldDescription>
@@ -100,7 +119,7 @@ GROUP BY student_name, s.academic_year, s.mat_no, c.course_code, c.course_name, 
 		</field>
 	</subDataset>
 	<subDataset name="school_info" uuid="2be8bdad-5bfd-4a75-8e0e-773eb4645122">
-		<parameter name="studentMatNo" class="java.lang.Integer"/>
+		<parameter name="studentID" class="java.lang.String"/>
 		<queryString language="SQL">
 			<![CDATA[SELECT 
     CONCAT(s.othername, ' ', s.surname) AS student_name, 
@@ -122,7 +141,7 @@ Join schools_tbl d on s.school = d.school_id
 JOIN courses c ON g.course_id = c.course_id
 JOIN grading_system gs ON g.grade = gs.grade
 
-Where s.mat_no = $P{studentMatNo}
+
 GROUP BY 
     s.othername, 
     s.surname, 
@@ -145,10 +164,95 @@ GROUP BY
 		<field name="total_grade_points" class="java.math.BigDecimal"/>
 		<field name="total_credit_hours" class="java.math.BigDecimal"/>
 	</subDataset>
-	<parameter name="REPORT_TIME" class="java.util.Date">
-		<defaultValueExpression><![CDATA[new java.text.SimpleDateFormat("MMMM yyyy").format(new java.util.Date())]]></defaultValueExpression>
-	</parameter>
-	<parameter name="studentMatNo" class="java.lang.String"/>
+	<subDataset name="data" uuid="2d04645c-df0e-46ac-9da8-3c87a8835b5d">
+		<parameter name="studentID" class="java.lang.String"/>
+		<queryString language="SQL">
+			<![CDATA[Select concat(s.othername,' ',s.surname)AS student_name, 
+	s.othername,
+    concat(s.surname,',') AS sname,
+    d.school_name,
+    d.dean_email,
+    s.academic_year,
+    s.mat_no,
+    a.year_name,
+    r.program_name,
+    c.course_code, 
+    c.course_name, 
+    c.credit_hours, 
+    g.grade,
+    p.SGPA
+FROM grades g
+JOIN student_registration_tbl s ON g.student_id = s.mat_no
+Join academic_years a ON s.year = a.year_id
+Join program_tbl r ON s.program = r.program_id
+JOIN vw_sgpa p ON s.mat_no = p.mat_no
+JOIN schools_tbl d on s.school = d.school_id
+JOIN courses c ON g.course_id = c.course_id
+
+
+GROUP BY student_name, s.academic_year, s.othername, sname, s.mat_no, a.year_name, r.program_name, c.course_code, c.course_name, c.credit_hours, g.grade;]]>
+		</queryString>
+		<field name="student_name" class="java.lang.String"/>
+		<field name="othername" class="java.lang.String">
+			<fieldDescription><![CDATA[]]></fieldDescription>
+		</field>
+		<field name="sname" class="java.lang.String"/>
+		<field name="school_name" class="java.lang.String">
+			<fieldDescription><![CDATA[]]></fieldDescription>
+		</field>
+		<field name="dean_email" class="java.lang.String">
+			<fieldDescription><![CDATA[]]></fieldDescription>
+		</field>
+		<field name="academic_year" class="java.lang.String">
+			<fieldDescription><![CDATA[]]></fieldDescription>
+		</field>
+		<field name="mat_no" class="java.lang.Integer">
+			<fieldDescription><![CDATA[]]></fieldDescription>
+		</field>
+		<field name="year_name" class="java.lang.String">
+			<fieldDescription><![CDATA[]]></fieldDescription>
+		</field>
+		<field name="program_name" class="java.lang.String">
+			<fieldDescription><![CDATA[]]></fieldDescription>
+		</field>
+		<field name="course_code" class="java.lang.String">
+			<fieldDescription><![CDATA[]]></fieldDescription>
+		</field>
+		<field name="course_name" class="java.lang.String">
+			<fieldDescription><![CDATA[]]></fieldDescription>
+		</field>
+		<field name="credit_hours" class="java.lang.Integer">
+			<fieldDescription><![CDATA[]]></fieldDescription>
+		</field>
+		<field name="grade" class="java.lang.String">
+			<fieldDescription><![CDATA[]]></fieldDescription>
+		</field>
+		<field name="SGPA" class="java.math.BigDecimal">
+			<fieldDescription><![CDATA[]]></fieldDescription>
+		</field>
+	</subDataset>
+	<subDataset name="progress_grades" uuid="97a68d3a-a22b-45a0-9bb7-196561868267">
+		<parameter name="studentID" class="java.lang.String"/>
+		<queryString language="SQL">
+			<![CDATA[select courses.course_code, courses.course_name, courses.credit_hours, grades.grade
+From grades
+Inner Join courses on grades.course_id=courses.course_id
+Where grades.student_id =$P{studentID}]]>
+		</queryString>
+		<field name="course_code" class="java.lang.String">
+			<fieldDescription><![CDATA[]]></fieldDescription>
+		</field>
+		<field name="course_name" class="java.lang.String">
+			<fieldDescription><![CDATA[]]></fieldDescription>
+		</field>
+		<field name="credit_hours" class="java.lang.Integer">
+			<fieldDescription><![CDATA[]]></fieldDescription>
+		</field>
+		<field name="grade" class="java.lang.String">
+			<fieldDescription><![CDATA[]]></fieldDescription>
+		</field>
+	</subDataset>
+	<parameter name="studentID" class="java.lang.String"/>
 	<queryString language="SQL">
 		<![CDATA[Select concat(s.othername,' ',s.surname)AS student_name, 
 	s.othername,
@@ -157,9 +261,8 @@ GROUP BY
     d.dean_email,
     s.academic_year,
     s.mat_no,
-    s.major,
-    s.year,
-    s.program,
+    a.year_name,
+    r.program_name,
     c.course_code, 
     c.course_name, 
     c.credit_hours, 
@@ -167,12 +270,14 @@ GROUP BY
     p.SGPA
 FROM grades g
 JOIN student_registration_tbl s ON g.student_id = s.mat_no
+Join academic_years a ON s.year = a.year_id
+Join program_tbl r ON s.program = r.program_id
 JOIN vw_sgpa p ON s.mat_no = p.mat_no
 JOIN schools_tbl d on s.school = d.school_id
 JOIN courses c ON g.course_id = c.course_id
 
-
-GROUP BY student_name, s.academic_year, s.othername, sname, s.mat_no, s.major, s.year, s.program, c.course_code, c.course_name, c.credit_hours, g.grade;]]>
+Where s.mat_no=$P{studentID}
+GROUP BY student_name, s.academic_year, s.othername, sname, s.mat_no, a.year_name, r.program_name, c.course_code, c.course_name, c.credit_hours, g.grade;]]>
 	</queryString>
 	<field name="student_name" class="java.lang.String"/>
 	<field name="othername" class="java.lang.String">
@@ -198,19 +303,16 @@ GROUP BY student_name, s.academic_year, s.othername, sname, s.mat_no, s.major, s
 		<fieldDescription><![CDATA[]]></fieldDescription>
 	</field>
 	<field name="SGPA" class="java.math.BigDecimal"/>
-	<field name="major" class="java.lang.String">
-		<fieldDescription><![CDATA[]]></fieldDescription>
-	</field>
-	<field name="year" class="java.lang.String">
-		<fieldDescription><![CDATA[]]></fieldDescription>
-	</field>
-	<field name="program" class="java.lang.String">
-		<fieldDescription><![CDATA[]]></fieldDescription>
-	</field>
 	<field name="school_name" class="java.lang.String">
 		<fieldDescription><![CDATA[]]></fieldDescription>
 	</field>
 	<field name="dean_email" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="year_name" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="program_name" class="java.lang.String">
 		<fieldDescription><![CDATA[]]></fieldDescription>
 	</field>
 	<background>
@@ -367,14 +469,14 @@ GROUP BY student_name, s.academic_year, s.othername, sname, s.mat_no, s.major, s
 				<text><![CDATA[NAME: ]]></text>
 			</staticText>
 			<textField>
-				<reportElement x="59" y="4" width="28" height="20" uuid="3e09227b-6304-403d-8b75-067ba4036fbb"/>
+				<reportElement x="59" y="4" width="60" height="20" uuid="3e09227b-6304-403d-8b75-067ba4036fbb"/>
 				<textElement>
 					<font fontName="Times New Roman" size="12" isBold="true"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{sname}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="89" y="4" width="51" height="20" uuid="6453b2bf-ce0d-479a-8b6f-3e2b66072778"/>
+				<reportElement x="110" y="4" width="87" height="20" uuid="6453b2bf-ce0d-479a-8b6f-3e2b66072778"/>
 				<textElement>
 					<font fontName="Times New Roman" size="12" isBold="false"/>
 				</textElement>
@@ -387,34 +489,27 @@ GROUP BY student_name, s.academic_year, s.othername, sname, s.mat_no, s.major, s
 				</textElement>
 				<text><![CDATA[PROGRAMME OF STUDENT: ]]></text>
 			</staticText>
-			<textField>
-				<reportElement x="202" y="35" width="100" height="20" uuid="341f057e-cd1f-4e7f-ad63-6b46ebe6134b"/>
-				<textElement>
-					<font fontName="Times New Roman" size="12"/>
-				</textElement>
-				<textFieldExpression><![CDATA[$F{major}]]></textFieldExpression>
-			</textField>
-			<textField>
-				<reportElement x="178" y="35" width="24" height="20" uuid="060d3f93-3cf1-4278-a7e9-2aa3083339a6"/>
-				<textElement>
-					<font fontName="Times New Roman" size="12"/>
-				</textElement>
-				<textFieldExpression><![CDATA[$F{program}]]></textFieldExpression>
-			</textField>
-			<textField>
-				<reportElement x="488" y="35" width="43" height="20" uuid="a9729141-82c8-4fcf-84f6-99cabb9d9763"/>
-				<textElement>
-					<font fontName="Times New Roman" size="12"/>
-				</textElement>
-				<textFieldExpression><![CDATA[$F{year}]]></textFieldExpression>
-			</textField>
 			<staticText>
-				<reportElement x="448" y="35" width="53" height="20" uuid="4775fe6c-aaa7-4b59-9c16-f68fcfba026c"/>
+				<reportElement x="458" y="35" width="53" height="20" uuid="4775fe6c-aaa7-4b59-9c16-f68fcfba026c"/>
 				<textElement>
 					<font fontName="Times New Roman" size="12" isBold="true"/>
 				</textElement>
 				<text><![CDATA[YEAR:]]></text>
 			</staticText>
+			<textField>
+				<reportElement x="511" y="35" width="39" height="20" uuid="86997ec3-e15f-4c9d-bac9-8ce9fedb3569"/>
+				<textElement>
+					<font fontName="Times New Roman" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{year_name}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="183" y="35" width="247" height="20" uuid="93adb8f0-892b-4c79-a69b-ef02996d3f7c"/>
+				<textElement>
+					<font fontName="Times New Roman" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{program_name}]]></textFieldExpression>
+			</textField>
 		</band>
 	</columnHeader>
 	<summary>
@@ -450,17 +545,17 @@ GROUP BY student_name, s.academic_year, s.othername, sname, s.mat_no, s.major, s
 				<text><![CDATA[Remarks:]]></text>
 			</staticText>
 			<textField>
-				<reportElement x="67" y="380" width="174" height="20" uuid="17dd5149-4780-400c-a9cd-e4f46de0430f"/>
+				<reportElement x="67" y="380" width="281" height="20" uuid="17dd5149-4780-400c-a9cd-e4f46de0430f"/>
 				<textElement>
-					<font fontName="Times New Roman" size="14"/>
+					<font fontName="Times New Roman" size="12"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{SGPA} >= 3.0 ?
         
-        (Integer.valueOf($F{year}) == 5 ? "Qualified for Comprehensive" :
+        (Integer.valueOf($F{year_name}) == 5 ? "Qualified for Comprehensive" :
         "Promoted to Year " +
-        (Integer.valueOf($F{year}) + 1) + " on Clear Standing")
+        (Integer.valueOf($F{year_name}) + 1) + " on Clear Standing")
 
-        : "Not Promoted" + (Integer.valueOf($F{year}))]]></textFieldExpression>
+        : "Not Promoted" + (Integer.valueOf($F{year_name}))]]></textFieldExpression>
 			</textField>
 			<staticText>
 				<reportElement x="10" y="446" width="168" height="20" uuid="2097e98a-47e3-4f04-88fb-a116717403df"/>
@@ -523,91 +618,90 @@ $F{school_name}.toUpperCase() : ""]]></textFieldExpression>
 				<reportElement x="5" y="520" width="100" height="21" uuid="1b853292-3761-4a19-b161-b2cd4e632851"/>
 				<text><![CDATA[MMB/aas]]></text>
 			</staticText>
-			<textField>
-				<reportElement x="455" y="520" width="100" height="20" uuid="c1e26ae3-9798-4fe7-bee5-723f8d0349ca"/>
-				<textFieldExpression><![CDATA[$P{REPORT_TIME}]]></textFieldExpression>
-			</textField>
 			<componentElement>
-				<reportElement key="table" style="table" x="0" y="0" width="555" height="140" uuid="5ddaddef-9696-4672-af04-b7271f77ae73"/>
+				<reportElement key="table 1" style="table 1" mode="Opaque" x="0" y="0" width="555" height="140" forecolor="#000000" backcolor="#FFFFFF" uuid="1e8092cf-549e-4f0a-b9e1-7d1954e5dbab"/>
 				<jr:table xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
-					<datasetRun subDataset="progress_1" uuid="2dc625c1-0fb1-41a4-ae2a-6477498fe0a6">
+					<datasetRun subDataset="progress_grades" uuid="776fdc12-393d-4dff-ab40-6679fc4a7fd0">
+						<datasetParameter name="studentID">
+							<datasetParameterExpression><![CDATA[$P{studentID}]]></datasetParameterExpression>
+						</datasetParameter>
 						<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
 					</datasetRun>
-					<jr:column width="104" uuid="096d0006-a41e-4661-adde-439882b09190">
-						<jr:columnHeader style="table_CH" height="30" rowSpan="1">
+					<jr:column width="90" uuid="0eae22ad-8864-4be1-b47e-4f1e4d2487e8">
+						<jr:columnHeader style="table 1_CH" height="30" rowSpan="1">
 							<staticText>
-								<reportElement x="4" y="0" width="90" height="30" uuid="00151567-6d20-4f76-b9a9-a497a12e82ad"/>
-								<textElement>
+								<reportElement x="0" y="0" width="90" height="30" uuid="6bfb57ab-8cf6-4ff3-a6cf-295b017eb2bb"/>
+								<textElement textAlignment="Center">
 									<font fontName="Times New Roman" size="12" isBold="true"/>
 								</textElement>
 								<text><![CDATA[COURSE CODE	]]></text>
 							</staticText>
 						</jr:columnHeader>
-						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+						<jr:detailCell style="table 1_TD" height="20" rowSpan="1">
 							<textField>
-								<reportElement x="5" y="0" width="90" height="20" uuid="c09ccc45-bb52-41af-ba89-e1c5f0a906d8"/>
+								<reportElement x="10" y="0" width="80" height="20" uuid="26fb669e-d760-412b-b3ee-63ad77362d0c"/>
 								<textElement>
-									<font fontName="Times New Roman" size="12" isBold="false"/>
+									<font fontName="Times New Roman" size="12"/>
 								</textElement>
 								<textFieldExpression><![CDATA[$F{course_code}]]></textFieldExpression>
 							</textField>
 						</jr:detailCell>
 					</jr:column>
-					<jr:column width="225" uuid="3f26d6da-87ce-4dff-a358-0ef27c8680ca">
-						<jr:columnHeader style="table_CH" height="30" rowSpan="1">
+					<jr:column width="259" uuid="9535c36e-cf8c-41e4-b552-872d064febca">
+						<jr:columnHeader style="table 1_CH" height="30" rowSpan="1">
 							<staticText>
-								<reportElement x="4" y="0" width="221" height="30" uuid="5b844958-2395-4390-be17-bdfe5295c606"/>
-								<textElement>
+								<reportElement x="0" y="0" width="259" height="30" uuid="ba4115ec-3669-4de8-9932-6b8806337b1a"/>
+								<textElement textAlignment="Center">
 									<font fontName="Times New Roman" size="12" isBold="true"/>
 								</textElement>
-								<text><![CDATA[COURSE DESCRIPTION]]></text>
+								<text><![CDATA[COURSE NAME]]></text>
 							</staticText>
 						</jr:columnHeader>
-						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+						<jr:detailCell style="table 1_TD" height="20" rowSpan="1">
 							<textField>
-								<reportElement x="3" y="0" width="222" height="20" uuid="2fd421ac-bb9c-4be6-8f5b-111599b88640"/>
+								<reportElement x="15" y="0" width="244" height="20" uuid="0cedc616-61e3-42d4-ad33-af49dca62b1f"/>
 								<textElement>
-									<font fontName="Times New Roman" size="12" isBold="false"/>
+									<font fontName="Times New Roman" size="12"/>
 								</textElement>
 								<textFieldExpression><![CDATA[$F{course_name}]]></textFieldExpression>
 							</textField>
 						</jr:detailCell>
 					</jr:column>
-					<jr:column width="111" uuid="05765399-d66d-41fc-8502-d4d670005544">
-						<jr:columnHeader style="table_CH" height="30" rowSpan="1">
+					<jr:column width="121" uuid="df59af2a-f35b-41ac-a919-09724a3aea8e">
+						<jr:columnHeader style="table 1_CH" height="30" rowSpan="1">
 							<staticText>
-								<reportElement x="3" y="0" width="102" height="30" uuid="22e23ad1-a388-4fd5-b6ba-9c0cf582c61d"/>
-								<textElement>
+								<reportElement x="0" y="0" width="121" height="30" uuid="5d54df49-25a4-4cc0-9fe7-c9cfc806711b"/>
+								<textElement textAlignment="Center">
 									<font fontName="Times New Roman" size="12" isBold="true"/>
 								</textElement>
 								<text><![CDATA[CREDIT HOURS]]></text>
 							</staticText>
 						</jr:columnHeader>
-						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+						<jr:detailCell style="table 1_TD" height="20" rowSpan="1">
 							<textField>
-								<reportElement x="0" y="0" width="90" height="20" uuid="67742fa9-6dc5-4438-94d0-83801ae03a2b"/>
+								<reportElement x="0" y="0" width="121" height="20" uuid="9a70ccf8-76c1-49e1-8b5e-f4214e56701f"/>
 								<textElement textAlignment="Center">
-									<font fontName="Times New Roman" size="12" isBold="false"/>
+									<font fontName="Times New Roman" size="12"/>
 								</textElement>
 								<textFieldExpression><![CDATA[$F{credit_hours}]]></textFieldExpression>
 							</textField>
 						</jr:detailCell>
 					</jr:column>
-					<jr:column width="110" uuid="a6d7ffcf-3b51-4486-b3e9-fee7ffc9add3">
-						<jr:columnHeader style="table_CH" height="30" rowSpan="1">
+					<jr:column width="90" uuid="925b73fb-d68b-4b96-bf57-a1051e26a76f">
+						<jr:columnHeader style="table 1_CH" height="30" rowSpan="1">
 							<staticText>
-								<reportElement x="3" y="0" width="100" height="30" uuid="69b9cb8f-2270-4af3-9263-4f3e9eef8fc2"/>
-								<textElement>
+								<reportElement x="0" y="0" width="90" height="30" uuid="3707f80f-1b9e-4b6e-89ac-5ff9acfaaec7"/>
+								<textElement textAlignment="Center">
 									<font fontName="Times New Roman" size="12" isBold="true"/>
 								</textElement>
-								<text><![CDATA[GRADE EARNED]]></text>
+								<text><![CDATA[GRADE]]></text>
 							</staticText>
 						</jr:columnHeader>
-						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+						<jr:detailCell style="table 1_TD" height="20" rowSpan="1">
 							<textField>
-								<reportElement x="0" y="0" width="90" height="20" uuid="2ea751eb-5da5-462f-bd84-c382da6dc0ad"/>
+								<reportElement x="0" y="0" width="90" height="20" uuid="7d15d006-3056-43bd-b741-3e201ea5cf08"/>
 								<textElement textAlignment="Center">
-									<font fontName="Times New Roman" size="12" isBold="false"/>
+									<font fontName="Times New Roman" size="12"/>
 								</textElement>
 								<textFieldExpression><![CDATA[$F{grade}]]></textFieldExpression>
 							</textField>

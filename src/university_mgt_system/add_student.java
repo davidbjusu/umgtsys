@@ -18,26 +18,43 @@ public class add_student extends JFrame implements ActionListener{
     JTextField txt_surname,txt_othername,txt_matno,txt_telephone
               ,txt_address,txt_parent,txt_major,txt_fee;
     JDateChooser dcdob;
-    JComboBox cmb_year,cmb_gender,cmb_nationality,cmb_program,cmb_prog_year,cmb_fsupport;
+    JComboBox cmb_year,cmb_gender,cmb_nationality,cmb_fsupport;
     JButton back,submit, cancel;
     private JComboBox<String> cmb_school;
     private JComboBox<String> cmb_dept;
+    private JComboBox<String> cmb_prog;
+    private JComboBox<String> cmb_prog_year;
+    
     private JLabel lblSchoolID;
     private JLabel lbldeptID;
-    
+    private JLabel lblprogID;
+    private JLabel lblyrID;
     
     
     add_student() {
-         lblSchoolID = new JLabel();
+        lblSchoolID = new JLabel();
         lblSchoolID.setVisible(false);
         this.add(lblSchoolID);
         //departments
         lbldeptID = new JLabel();
         lbldeptID.setVisible(false);
         this.add(lbldeptID);
+        
+        //programs
+        lblprogID = new JLabel();
+        lblprogID.setVisible(false);
+        this.add(lblprogID);
+        
+        //year
+        lblyrID = new JLabel();
+        lblyrID.setVisible(false);
+        this.add(lblyrID);
          cmb_school = new JComboBox<>();
          cmb_dept = new JComboBox<>();
+         cmb_prog = new JComboBox<>();
+         cmb_prog_year = new JComboBox<>();
         loadSchools();
+        loadacademicYear();
         setTitle("Njala University Management System");
         
         NoIconFrame.setFrameIcon(this);
@@ -159,7 +176,7 @@ public class add_student extends JFrame implements ActionListener{
         lbl_10.setForeground(Color.red);
         add(lbl_10);
         
-        //String school[] = {"Select","Technology", "Agriculture", "Medicine","Education","Social Sciences"};
+        
         cmb_school = new JComboBox<>();
         loadSchools();
         cmb_school.addActionListener(this);
@@ -174,8 +191,9 @@ public class add_student extends JFrame implements ActionListener{
         lbl_20.setForeground(Color.red);
         add(lbl_20);
         
-        //String dept[] = {"Select","Technology", "Agriculture", "Medicine","Education","Social Sciences"};
+       
         cmb_dept = new JComboBox<>();
+        //loadPrograms();
         this.add(cmb_dept);
         cmb_dept.addActionListener(this);
         cmb_dept.setBounds(450, 310, 150, 25);
@@ -183,34 +201,31 @@ public class add_student extends JFrame implements ActionListener{
         cmb_dept.setBackground(Color.WHITE);
         add(cmb_dept);
         
-        JLabel lbl_11 = new JLabel("PROGRAM");
+        JLabel lbl_11 = new JLabel("PROGRAMME");
         lbl_11.setBounds(640, 300, 200, 25);
         lbl_11.setFont(new Font("sanserif", Font.BOLD, 12));
         add(lbl_11);
         
-        String program[] = {"Select","BSC.", "B.A", "Higher Diploma","Certificate","MSc"};
-        cmb_program = new JComboBox(program);
-        cmb_program.setBounds(740, 310, 150, 25);
-        cmb_program.setFont(new Font("sanserif", Font.PLAIN, 12));
-        cmb_program.setBackground(Color.WHITE);
-        add(cmb_program);
+        //String program[] = {"Select","BSC.", "B.A","BSc(Hons)", "Higher Diploma","Certificate","MSc"};
+        cmb_prog = new JComboBox<>();
+        this.add(cmb_prog);
+        cmb_prog.addActionListener(this);
+        cmb_prog.setBounds(740, 310, 150, 25);
+        cmb_prog.setFont(new Font("sanserif", Font.PLAIN, 12));
+        cmb_prog.setBackground(Color.WHITE);
+        add(cmb_prog);
         
-        JLabel lbl_12 = new JLabel("MAJOR");
-        lbl_12.setBounds(20, 400, 200, 25);
-        lbl_12.setFont(new Font("sanserif", Font.BOLD, 12));
-        add(lbl_12);
         
-        txt_major = new JTextField();
-        txt_major.setBounds(150, 400, 150, 25);
-        add(txt_major);
         
-        JLabel lbl_13 = new JLabel("PROGRAM YEAR");
+        JLabel lbl_13 = new JLabel("PROGRAMME YR");
         lbl_13.setBounds(350, 350, 200, 25);
         lbl_13.setFont(new Font("sanserif", Font.BOLD, 12));
         add(lbl_13);
         
-        String prog_year[] = {"Select","1", "2", "3","4"};
-        cmb_prog_year = new JComboBox(prog_year);
+       // String prog_year[] = {"Select","1", "2", "3","4"};
+        cmb_prog_year = new JComboBox<>();
+        loadacademicYear();
+        cmb_prog_year.addActionListener(this);
         cmb_prog_year.setBounds(450, 360, 150, 25);
         cmb_prog_year.setFont(new Font("sanserif", Font.PLAIN, 12));
         cmb_prog_year.setBackground(Color.WHITE);
@@ -266,7 +281,33 @@ public class add_student extends JFrame implements ActionListener{
         setVisible(true);
         
     }
-    
+    //Loading Academic Years
+    private void loadacademicYear() {
+       if (cmb_prog_year == null){
+       System.out.println("Error CmbSchool is null");
+       return;
+       }
+    try {
+        Conn con = new Conn();
+        String query = "SELECT year_id,year_name FROM academic_years";
+        pst = con.c.prepareStatement(query);
+        ResultSet rs = pst.executeQuery();
+       
+        cmb_prog_year.removeAllItems();  // Clear previous data
+        cmb_prog_year.addItem("-- Select Year --");
+       
+        while (rs.next()) {
+            String YearID = rs.getString("year_id");
+            String yearname = rs.getString("year_name");
+            System.out.println("Adding "+yearname);
+            cmb_prog_year.addItem(rs.getString("year_name"));
+        }
+            System.out.println("Years loaded Successfully");
+            
+    } catch (Exception ex) {
+        ex.printStackTrace();
+    }
+    }
     
    private void loadSchools() {
        if (cmb_school == null){
@@ -294,7 +335,44 @@ public class add_student extends JFrame implements ActionListener{
         ex.printStackTrace();
     }
 }
+   //Loading Programs
+    private void loadPrograms() {
+        
+        cmb_prog.removeAllItems(); 
+        lblprogID.setText("");
+        cmb_prog.addItem("-- Select Program --");
+    String selecteddept = (String) cmb_prog.getSelectedItem();
+    
+    if (selecteddept == null || selecteddept.equals("-- Select Department --")){
+       return;
+       }
 
+       try {
+           Conn con = new Conn();
+        
+        String query = "SELECT program_id, program_name FROM program_tbl Where dept_id = ?";
+        pst = con.c.prepareStatement(query);
+        pst.setString(1, lbldeptID.getText());
+        ResultSet rs = pst.executeQuery();
+
+        
+
+        while (rs.next()) {
+            String programID = rs.getString("program_id");//testdebugging
+            String progname = rs.getString("program_name");
+            System.out.println("Loaded Dept "+programID);
+            System.out.println("School ID is "+progname);//testdebugging
+            cmb_prog.addItem(rs.getString("program_name"));
+        }
+            cmb_prog.revalidate();
+            cmb_prog.repaint();
+    } catch (Exception ex) {
+        System.out.println("Error Loading Programs");
+        ex.printStackTrace();
+    }
+}
+   
+   //Loading departments
     private void loadDepartments() {
     String selectedSchool = (String) cmb_school.getSelectedItem();
     
@@ -325,7 +403,8 @@ public class add_student extends JFrame implements ActionListener{
     } catch (Exception ex) {
         ex.printStackTrace();
     }
-}
+}   
+    
     
     @Override        
     public void actionPerformed(ActionEvent ae) {
@@ -369,6 +448,53 @@ public class add_student extends JFrame implements ActionListener{
                                   System.out.println("Dept ID is "+deptID);//testdebugging
                                 lbldeptID.setText(rs.getString("dept_id"));
                                 //loadDepartments(rs.getString("school_id"));
+                                loadPrograms();
+                                }
+                             } catch (Exception ex) {
+                            ex.printStackTrace();
+    }
+                        }
+        }
+        else if 
+                (ae.getSource() == cmb_prog)
+        {
+            String selectedprog = (String) cmb_prog.getSelectedItem();
+                        if(selectedprog != null){
+                            try {
+                                Conn con = new Conn();
+        
+                                String query = "SELECT program_id FROM program_tbl WHERE program_name = ?";
+                            pst = con.c.prepareStatement(query);
+                            pst.setString(1, selectedprog);
+                            ResultSet rs = pst.executeQuery();
+                                if(rs.next()){
+                                    String progID = rs.getString("program_id");//testdebugging
+                                    System.out.println("program ID is "+progID);//testdebugging
+                                lblprogID.setText(rs.getString("program_id"));
+                                
+                                }
+                             } catch (Exception ex) {
+                            ex.printStackTrace();
+    }
+                        }
+        }
+        else if 
+                (ae.getSource() == cmb_prog_year)
+        {
+            String selectedyr = (String) cmb_prog_year.getSelectedItem();
+                        if(selectedyr != null){
+                            try {
+                                Conn con = new Conn();
+        
+                                String query = "SELECT year_id FROM academic_years WHERE year_name = ?";
+                            pst = con.c.prepareStatement(query);
+                            pst.setString(1, selectedyr);
+                            ResultSet rs = pst.executeQuery();
+                                if(rs.next()){
+                                    String yrID = rs.getString("year_id");//testdebugging
+                                    System.out.println("Year ID is "+yrID);//testdebugging
+                                lblyrID.setText(rs.getString("year_id"));
+                                
                                 }
                              } catch (Exception ex) {
                             ex.printStackTrace();
@@ -390,14 +516,14 @@ public class add_student extends JFrame implements ActionListener{
         parent = txt_parent.getText();
         school = lblSchoolID.getText();
         dept = lbldeptID.getText();
-        program = cmb_program.getSelectedItem().toString();
-        fee = txt_major.getText();
-        year = cmb_prog_year.getSelectedItem().toString();
+        program = lblprogID.getText();
+        year = lblyrID.getText();
         fsupport = cmb_fsupport.getSelectedItem().toString();
-        major = txt_fee.getText();
+        fee = txt_fee.getText();
+        //major = txt_fee.getText();
             
             try {
-                 String query = "insert into student_registration_tbl values('"+academicYear+"', '"+matno+"', '"+sname+"', '"+oname+"', '"+tel+"', '"+gender+"', '"+nationality+"', '"+address+"', '"+parent+"', '"+school+"', '"+dept+"', '"+program+"', '"+fee+"', '"+year+"', '"+fsupport+"', '"+major+"')";
+                 String query = "insert into student_registration_tbl values('"+academicYear+"', '"+matno+"', '"+sname+"', '"+oname+"', '"+tel+"', '"+gender+"', '"+nationality+"', '"+address+"', '"+parent+"', '"+school+"', '"+dept+"', '"+program+"', '"+year+"', '"+fsupport+"', '"+fee+"')";
            
            Conn con = new Conn();
            con.s.executeUpdate(query);
@@ -410,7 +536,6 @@ public class add_student extends JFrame implements ActionListener{
            txt_telephone.setText(" ");
            txt_address.setText(" ");
            txt_parent.setText(" ");
-           txt_major.setText(" ");
            txt_fee.setText(" ");
            txt_surname.requestFocus();
            
